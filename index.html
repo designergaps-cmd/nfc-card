@@ -27,4 +27,167 @@
                 <button onclick="downloadVCard()" class="block w-full bg-indigo-600 text-white border-2 border-indigo-600 py-3 rounded-xl font-bold hover:bg-indigo-500 transition shadow-sm">Save Contact / 儲存名片</button>
             </div>
             
-            <hr class="my-8 border-slate-100
+            <hr class="my-8 border-slate-100">
+            <button onclick="window.location.href=window.location.pathname" class="text-sm text-slate-400 hover:text-blue-500 underline transition">Create New / 建立新名片</button>
+        </div>
+
+        <div id="inputForm" class="space-y-4">
+            
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name / 姓名 (例如: KY Young) *</label>
+                <input type="text" id="name" placeholder="KY Young" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-indigo-500 outline-none transition">
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Position / 職位</label>
+                <input type="text" id="position" placeholder="Manager" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-indigo-500 outline-none transition">
+            </div>
+            
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone / 電話 *</label>
+                <div class="flex mt-1">
+                    <input list="countryCodes" id="countryCode" placeholder="+65" class="w-28 border-slate-200 border-2 border-r-0 rounded-l-xl p-3 bg-slate-50 text-sm outline-none focus:border-indigo-500" oninput="smartCode(this)">
+                    <datalist id="countryCodes">
+                        <option value="+65">Singapore (SG)</option>
+                        <option value="+60">Malaysia (MY)</option>
+                        <option value="+91">India (IN)</option>
+                        <option value="+886">Taiwan (TW)</option>
+                        <option value="+86">China (CN)</option>
+                        <option value="+852">Hong Kong (HK)</option>
+                        <option value="+1">USA (US)</option>
+                        <option value="+44">UK (UK)</option>
+                    </datalist>
+                    <input type="tel" id="phone" placeholder="88888888" class="w-full border-slate-200 border-2 rounded-r-xl p-3 focus:border-indigo-500 outline-none transition">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Email / 電子郵件 (選填)</label>
+                <input type="email" id="email" placeholder="ky@example.com" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-indigo-500 outline-none transition">
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Company / 公司</label>
+                <input type="text" id="company" placeholder="Global Asia Printing" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-indigo-500 outline-none transition">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Website / 網站</label>
+                <input type="url" id="web" placeholder="https://..." class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-indigo-500 outline-none transition">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Address / 地址</label>
+                <textarea id="addr" placeholder="Office Address" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-indigo-500 outline-none transition" rows="2"></textarea>
+            </div>
+            
+            <button onclick="generateLink()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all mt-4 text-center">Generate URL (Email Added)</button>
+
+            <div id="result" class="hidden mt-6 p-5 bg-slate-900 rounded-2xl text-white text-center">
+                <p class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest text-center">Copy URL to NFC Tools</p>
+                <textarea id="outputUrl" class="w-full text-xs border-none p-3 rounded-lg bg-slate-800 text-blue-300 focus:ring-0 mb-3" rows="3" readonly></textarea>
+                <button onclick="copyUrl()" class="w-full bg-blue-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-blue-400 transition">Click to Copy / 點擊拷貝</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function smartCode(input) {
+            let val = input.value.trim();
+            if (val.length >= 1 && !val.startsWith('+') && !isNaN(val.charAt(0))) {
+                input.value = '+' + val;
+            }
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const urlN = params.get('n');
+        const urlP = params.get('pos');
+        const urlPh = params.get('p');
+        const urlE = params.get('e'); // 獲取 email
+        const urlC = params.get('c');
+        const urlW = params.get('w');
+        const urlA = params.get('a');
+
+        if (urlN && urlPh) {
+            document.getElementById('inputForm').classList.add('hidden');
+            document.getElementById('cardDisplay').classList.remove('hidden');
+            document.getElementById('displayName').innerText = urlN;
+            
+            const displayFullTitle = urlC ? `${urlP} | ${urlC}` : urlP;
+            document.getElementById('displayPosition').innerText = displayFullTitle;
+            
+            document.getElementById('initial').innerText = urlN.charAt(0);
+            document.getElementById('dialPhone').href = `tel:${urlPh}`;
+            
+            // 處理 Email 顯示
+            if(urlE) {
+                const eBtn = document.getElementById('sendEmail');
+                eBtn.classList.remove('hidden');
+                eBtn.href = `mailto:${urlE}`;
+            }
+
+            if(urlW) { document.getElementById('openWeb').classList.remove('hidden'); document.getElementById('openWeb').href = urlW.startsWith('http') ? urlW : `https://${urlW}`; }
+            if(urlA) { document.getElementById('openMap').classList.remove('hidden'); document.getElementById('openMap').href = `google.com/maps/search/` + encodeURIComponent(urlA); }
+        }
+
+        function generateLink() {
+            const nVal = document.getElementById('name').value;
+            const pVal = document.getElementById('phone').value;
+            if(!nVal || !pVal) return alert('請填寫姓名與電話');
+            
+            let code = document.getElementById('countryCode').value || '+65';
+            if (!code.startsWith('+')) code = '+' + code;
+            const fullPhone = code + pVal.replace(/\s+/g, '');
+
+            const baseUrl = window.location.href.split('?')[0];
+            // 加入 email 參數 (&e=)
+            const finalUrl = `${baseUrl}?n=${encodeURIComponent(nVal)}&pos=${encodeURIComponent(document.getElementById('position').value)}&p=${encodeURIComponent(fullPhone)}&e=${encodeURIComponent(document.getElementById('email').value)}&c=${encodeURIComponent(document.getElementById('company').value)}&w=${encodeURIComponent(document.getElementById('web').value)}&a=${encodeURIComponent(document.getElementById('addr').value)}`;
+            
+            document.getElementById('outputUrl').value = finalUrl;
+            document.getElementById('result').classList.remove('hidden');
+        }
+
+        function copyUrl() {
+            document.getElementById("outputUrl").select();
+            document.execCommand("copy");
+            alert("URL Copied!");
+        }
+
+        function downloadVCard() {
+            const nameParts = urlN.trim().split(/\s+/);
+            let firstName = '';
+            let lastName = '';
+            
+            if (nameParts.length > 1) {
+                lastName = nameParts.pop();
+                firstName = nameParts.join(' ');
+            } else {
+                firstName = urlN;
+            }
+
+            const combinedTitle = urlC ? `${urlP} | ${urlC}` : urlP;
+
+            const vcardParts = [
+                'BEGIN:VCARD',
+                'VERSION:3.0',
+                `N:${lastName};${firstName};;;`,
+                `FN:${urlN}`,
+                `X-ABShowAs:PERSON`, 
+                `TITLE:${combinedTitle}`,
+                `ORG:`, 
+                `TEL;TYPE=CELL,VOICE:${urlPh}`,
+                `EMAIL;TYPE=WORK:${urlE}`, // 加入 vCard Email 欄位
+                `URL;TYPE=WORK:${urlW}`,
+                `ADR;TYPE=WORK:;;${urlA};;;;`,
+                'END:VCARD'
+            ];
+            
+            const vcard = vcardParts.join('\r\n');
+            const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const aLink = document.createElement('a');
+            aLink.href = url;
+            aLink.download = `${urlN.replace(/\s+/g, '_')}.vcf`;
+            aLink.click();
+        }
+    </script>
+</body>
+</html>
