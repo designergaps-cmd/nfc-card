@@ -34,12 +34,12 @@
         <div id="inputForm" class="space-y-4">
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Name / 姓名 *</label>
-                <input type="text" id="name" placeholder="John Doe" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <input type="text" id="name" placeholder="KY Young" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
 
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Position / 職位</label>
-                <input type="text" id="position" placeholder="Manager / 經理" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <input type="text" id="position" placeholder="Manager" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
             
             <div>
@@ -62,7 +62,7 @@
 
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Company / 公司</label>
-                <input type="text" id="company" placeholder="Company Name" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <input type="text" id="company" placeholder="Global Asia Printing" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Website / 網站</label>
@@ -134,32 +134,36 @@
         }
 
         function downloadVCard() {
-            // 自動分割姓名以修復頭像顯示問題
-            // 邏輯：最後一個空格後面的是「姓」，前面全部是「名」
-            const nameParts = urlN.trim().split(' ');
+            const nameParts = urlN.trim().split(/\s+/);
             let firstName = '';
             let lastName = '';
             
             if (nameParts.length > 1) {
-                lastName = nameParts.pop(); // 拿出最後一個字當姓 (e.g. Young)
-                firstName = nameParts.join(' '); // 剩下的當名 (e.g. KY)
+                lastName = nameParts.pop();
+                firstName = nameParts.join(' ');
             } else {
-                firstName = urlN; // 如果只有一個字，就全是名
+                firstName = urlN;
             }
 
-            const vcard = [
+            // 這裡做了修改：不填 ORG，改把公司名稱加到 TITLE 後面
+            // 例如：Designer | Global Asia Printing
+            // 這樣 iPhone 就找不到公司欄位，只能用名字當頭像
+            const combinedTitle = urlC ? `${urlP} | ${urlC}` : urlP;
+
+            const vcardParts = [
                 'BEGIN:VCARD',
                 'VERSION:3.0',
-                `N:${lastName};${firstName};;;`, // 這裡告訴 iPhone 哪個是姓，哪個是名 -> 頭像修復關鍵！
+                `N:${lastName};${firstName};;;`,
                 `FN:${urlN}`,
-                `ORG:${urlC}`,   // 公司放回 ORG
-                `TITLE:${urlP}`, // 職位放回 TITLE
+                `X-ABShowAs:PERSON`, 
+                `TITLE:${combinedTitle}`,  // 公司名移到這裡了
                 `TEL;TYPE=CELL,VOICE:${urlPh}`,
                 `URL;TYPE=WORK:${urlW}`,
                 `ADR;TYPE=WORK:;;${urlA};;;;`,
                 'END:VCARD'
-            ].join('\n');
-
+            ];
+            
+            const vcard = vcardParts.join('\r\n');
             const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
             const url = window.URL.createObjectURL(blob);
             const aLink = document.createElement('a');
