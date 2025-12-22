@@ -16,25 +16,25 @@
 
         <div id="cardDisplay" class="hidden text-center">
             <div class="w-24 h-24 gradient-bg rounded-full mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold shadow-lg" id="initial"></div>
-            <h2 id="displayName" class="text-2xl font-bold"></h2>
-            <p id="displayPosition" class="text-blue-600 font-bold text-sm uppercase tracking-wider"></p>
-            <p id="displayCompany" class="text-slate-500 mb-6 font-medium"></p>
+            <h2 id="displayName" class="text-2xl font-bold text-slate-800"></h2>
+            <p id="displayPosition" class="text-blue-600 font-bold text-sm uppercase tracking-wider mb-1"></p>
+            <p id="displayCompany" class="text-slate-500 mb-6 font-medium text-sm"></p>
             
             <div class="space-y-3">
-                <a id="dialPhone" href="#" class="block w-full bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition">Call / 撥打電話</a>
+                <a id="dialPhone" href="#" class="block w-full bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition shadow-md">Call / 撥打電話</a>
                 <a id="openWeb" href="#" class="hidden block w-full bg-blue-50 text-blue-700 py-3 rounded-xl font-bold border border-blue-100">Website / 訪問網站</a>
                 <a id="openMap" href="#" target="_blank" class="hidden block w-full bg-emerald-50 text-emerald-700 py-3 rounded-xl font-bold border border-emerald-100">Address / 查看地址</a>
-                <button onclick="downloadVCard()" class="block w-full bg-white border-2 border-slate-800 text-slate-800 py-3 rounded-xl font-bold hover:bg-slate-50 transition">Add to Contacts / 加入通訊錄</button>
+                <button onclick="downloadVCard()" class="block w-full bg-white border-2 border-slate-800 text-slate-800 py-3 rounded-xl font-bold hover:bg-slate-50 transition shadow-sm">Add to Contacts / 加入通訊錄</button>
             </div>
             
-            <hr class="my-8">
+            <hr class="my-8 border-slate-100">
             <button onclick="window.location.href=window.location.pathname" class="text-sm text-slate-400 hover:text-blue-500 underline transition">Create Your Own / 建立我的名片</button>
         </div>
 
         <div id="inputForm" class="space-y-4">
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Name / 姓名 *</label>
-                <input type="text" id="name" placeholder="John Doe" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none">
+                <input type="text" id="name" placeholder="John Doe" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
 
             <div>
@@ -49,10 +49,7 @@
                     <datalist id="countryCodes">
                         <option value="+65">Singapore (SG)</option>
                         <option value="+60">Malaysia (MY)</option>
-                        <option value="+91">India (IN)</option>
                         <option value="+886">Taiwan (TW)</option>
-                        <option value="+86">China (CN)</option>
-                        <option value="+852">Hong Kong (HK)</option>
                         <option value="+1">USA (US)</option>
                     </datalist>
                     <input type="tel" id="phone" placeholder="88888888" class="w-full border-slate-200 border-2 rounded-r-xl p-3 focus:border-blue-500 outline-none transition">
@@ -61,7 +58,7 @@
 
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Company / 公司</label>
-                <input type="text" id="company" placeholder="Global Asia Printing" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <input type="text" id="company" placeholder="Company Name" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Website / 網站</label>
@@ -72,12 +69,12 @@
                 <textarea id="addr" placeholder="Office Address" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition" rows="2"></textarea>
             </div>
             
-            <button onclick="generateLink()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl mt-4">Generate NFC URL / 產生網址</button>
+            <button onclick="generateLink()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all mt-4 text-center">Generate NFC URL / 產生網址</button>
 
             <div id="result" class="hidden mt-6 p-5 bg-slate-900 rounded-2xl text-white text-center">
-                <p class="text-xs font-bold text-slate-400 mb-2 uppercase text-center">Copy URL to NFC Tools / 拷貝網址</p>
-                <textarea id="outputUrl" class="w-full text-xs border-none p-3 rounded-lg bg-slate-800 text-blue-300" rows="3" readonly></textarea>
-                <button onclick="copyUrl()" class="w-full bg-blue-500 text-white py-2 rounded-lg mt-3 font-bold text-sm">Click to Copy / 點擊拷貝</button>
+                <p class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest text-center">Copy URL to NFC Tools</p>
+                <textarea id="outputUrl" class="w-full text-xs border-none p-3 rounded-lg bg-slate-800 text-blue-300 focus:ring-0 mb-3" rows="3" readonly></textarea>
+                <button onclick="copyUrl()" class="w-full bg-blue-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-blue-400 transition">Click to Copy / 點擊拷貝</button>
             </div>
         </div>
     </div>
@@ -91,36 +88,36 @@
         }
 
         const params = new URLSearchParams(window.location.search);
-        const n = params.get('n');
-        const pos = params.get('pos');
-        const p = params.get('p');
-        const c = params.get('c');
-        const w = params.get('w');
-        const a = params.get('a');
+        const urlN = params.get('n');
+        const urlP = params.get('pos');
+        const urlPh = params.get('p');
+        const urlC = params.get('c');
+        const urlW = params.get('w');
+        const urlA = params.get('a');
 
-        if (n && p) {
+        if (urlN && urlPh) {
             document.getElementById('inputForm').classList.add('hidden');
             document.getElementById('cardDisplay').classList.remove('hidden');
-            document.getElementById('displayName').innerText = n;
-            document.getElementById('displayPosition').innerText = pos || '';
-            document.getElementById('displayCompany').innerText = c || '';
-            document.getElementById('initial').innerText = n.charAt(0);
-            document.getElementById('dialPhone').href = `tel:${p}`;
-            if(w) { document.getElementById('openWeb').classList.remove('hidden'); document.getElementById('openWeb').href = w.startsWith('http') ? w : `https://${w}`; }
-            if(a) { document.getElementById('openMap').classList.remove('hidden'); document.getElementById('openMap').href = `google.com/maps/search/` + encodeURIComponent(a); }
+            document.getElementById('displayName').innerText = urlN;
+            document.getElementById('displayPosition').innerText = urlP || '';
+            document.getElementById('displayCompany').innerText = urlC || '';
+            document.getElementById('initial').innerText = urlN.charAt(0);
+            document.getElementById('dialPhone').href = `tel:${urlPh}`;
+            if(urlW) { document.getElementById('openWeb').classList.remove('hidden'); document.getElementById('openWeb').href = urlW.startsWith('http') ? urlW : `https://${urlW}`; }
+            if(urlA) { document.getElementById('openMap').classList.remove('hidden'); document.getElementById('openMap').href = `google.com/maps/search/` + encodeURIComponent(urlA); }
         }
 
         function generateLink() {
-            const nameVal = document.getElementById('name').value;
+            const nVal = document.getElementById('name').value;
             const pVal = document.getElementById('phone').value;
-            if(!nameVal || !pVal) return alert('請填寫姓名與電話');
+            if(!nVal || !pVal) return alert('請填寫姓名與電話');
             
             let code = document.getElementById('countryCode').value || '+65';
             if (!code.startsWith('+')) code = '+' + code;
             const fullPhone = code + pVal.replace(/\s+/g, '');
 
             const baseUrl = window.location.href.split('?')[0];
-            const finalUrl = `${baseUrl}?n=${encodeURIComponent(nameVal)}&pos=${encodeURIComponent(document.getElementById('position').value)}&p=${encodeURIComponent(fullPhone)}&c=${encodeURIComponent(document.getElementById('company').value)}&w=${encodeURIComponent(document.getElementById('web').value)}&a=${encodeURIComponent(document.getElementById('addr').value)}`;
+            const finalUrl = `${baseUrl}?n=${encodeURIComponent(nVal)}&pos=${encodeURIComponent(document.getElementById('position').value)}&p=${encodeURIComponent(fullPhone)}&c=${encodeURIComponent(document.getElementById('company').value)}&w=${encodeURIComponent(document.getElementById('web').value)}&a=${encodeURIComponent(document.getElementById('addr').value)}`;
             
             document.getElementById('outputUrl').value = finalUrl;
             document.getElementById('result').classList.remove('hidden');
@@ -133,17 +130,17 @@
         }
 
         function downloadVCard() {
-            // 強制將姓名填入 vCard 的第一個欄位，並將公司名稱移後
+            // 終極修正：為了讓頭像正確顯示名字首字母，我們需要微調 N 標籤
+            // N 標籤格式是：姓;名;中間名;前綴;後綴
             const vcard = [
                 'BEGIN:VCARD',
                 'VERSION:3.0',
-                `FN:${n}`,
-                `N:${n};;;;`,
-                `ORG:${c}`,
-                `TITLE:${pos}`,
-                `TEL;TYPE=CELL,VOICE:${p}`,
-                `URL;TYPE=WORK:${w}`,
-                `ADR;TYPE=WORK:;;${a};;;;`,
+                `N:;${urlN};;;`,  // 將全名放在「名字」位置，姓氏留空，這會強制頭像抓取名字
+                `FN:${urlN}`,
+                `TITLE:${urlP} | ${urlC}`, // 公司併入職稱
+                `TEL;TYPE=CELL,VOICE:${urlPh}`,
+                `URL;TYPE=WORK:${urlW}`,
+                `ADR;TYPE=WORK:;;${urlA};;;;`,
                 'END:VCARD'
             ].join('\n');
 
@@ -151,7 +148,7 @@
             const url = window.URL.createObjectURL(blob);
             const aLink = document.createElement('a');
             aLink.href = url;
-            aLink.download = `${n.replace(/\s+/g, '_')}.vcf`;
+            aLink.download = `${urlN.replace(/\s+/g, '_')}.vcf`;
             aLink.click();
         }
     </script>
