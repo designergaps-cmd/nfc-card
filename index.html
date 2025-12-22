@@ -35,13 +35,25 @@
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Name / 姓名 *</label>
                 <input type="text" id="name" placeholder="John Doe" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
+            
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone / 電話 *</label>
-                <input type="tel" id="phone" placeholder="+886 912..." class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <div class="flex mt-1">
+                    <select id="countryCode" class="border-slate-200 border-2 border-r-0 rounded-l-xl p-3 bg-slate-50 text-sm focus:border-blue-500 outline-none transition">
+                        <option value="+65">+65 (SG)</option>
+                        <option value="+60">+60 (MY)</option>
+                        <option value="+886">+886 (TW)</option>
+                        <option value="+86">+86 (CN)</option>
+                        <option value="+852">+852 (HK)</option>
+                        <option value="+1">+1 (US)</option>
+                    </select>
+                    <input type="tel" id="phone" placeholder="80292789" class="w-full border-slate-200 border-2 rounded-r-xl p-3 focus:border-blue-500 outline-none transition">
+                </div>
             </div>
+
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Company / 公司</label>
-                <input type="text" id="company" placeholder="Company Name" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <input type="text" id="company" placeholder="Unicorn KY" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Website / 網站 (選填)</label>
@@ -49,7 +61,7 @@
             </div>
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Address / 地址 (選填)</label>
-                <textarea id="addr" placeholder="Office Address" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition" rows="2"></textarea>
+                <textarea id="addr" placeholder="66 TANNERY LANE..." class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition" rows="2"></textarea>
             </div>
             
             <button onclick="generateLink()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all mt-4">Generate NFC URL / 產生寫入網址</button>
@@ -65,7 +77,7 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         const name = params.get('n');
-        const phone = params.get('p');
+        const phone = params.get('p'); // 這裡會包含國碼
         const company = params.get('c');
         const web = params.get('w');
         const addr = params.get('a');
@@ -92,6 +104,7 @@
 
         function generateLink() {
             const n = document.getElementById('name').value;
+            const code = document.getElementById('countryCode').value;
             const p = document.getElementById('phone').value;
             const c = document.getElementById('company').value;
             const w = document.getElementById('web').value;
@@ -99,8 +112,11 @@
             
             if(!n || !p) return alert('請填寫姓名與電話 / Name and Phone are required');
             
+            // 將國碼與電話結合
+            const fullPhone = code + p.replace(/\s+/g, '');
+            
             const baseUrl = window.location.href.split('?')[0];
-            const finalUrl = `${baseUrl}?n=${encodeURIComponent(n)}&p=${encodeURIComponent(p)}&c=${encodeURIComponent(c)}&w=${encodeURIComponent(w)}&a=${encodeURIComponent(a)}`;
+            const finalUrl = `${baseUrl}?n=${encodeURIComponent(n)}&p=${encodeURIComponent(fullPhone)}&c=${encodeURIComponent(c)}&w=${encodeURIComponent(w)}&a=${encodeURIComponent(a)}`;
             
             document.getElementById('outputUrl').value = finalUrl;
             document.getElementById('result').classList.remove('hidden');
