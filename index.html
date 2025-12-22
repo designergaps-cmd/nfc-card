@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NFC Digital Business Card Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"/>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        /* 修正外掛樣式使其適應 Tailwind */
+        .iti { width: 100%; }
+        .iti__country-list { color: #333; max-width: 300px; }
     </style>
 </head>
 <body class="bg-slate-50 flex items-center justify-center min-h-screen p-4 font-sans text-slate-900">
@@ -38,16 +42,8 @@
             
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone / 電話 *</label>
-                <div class="flex mt-1">
-                    <select id="countryCode" class="border-slate-200 border-2 border-r-0 rounded-l-xl p-3 bg-slate-50 text-sm focus:border-blue-500 outline-none transition">
-                        <option value="+65">+65 (SG)</option>
-                        <option value="+60">+60 (MY)</option>
-                        <option value="+886">+886 (TW)</option>
-                        <option value="+86">+86 (CN)</option>
-                        <option value="+852">+852 (HK)</option>
-                        <option value="+1">+1 (US)</option>
-                    </select>
-                    <input type="tel" id="phone" placeholder="80292789" class="w-full border-slate-200 border-2 rounded-r-xl p-3 focus:border-blue-500 outline-none transition">
+                <div class="mt-1">
+                    <input type="tel" id="phone" class="w-full border-slate-200 border-2 rounded-xl p-3 focus:border-blue-500 outline-none transition">
                 </div>
             </div>
 
@@ -61,7 +57,7 @@
             </div>
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Address / 地址 (選填)</label>
-                <textarea id="addr" placeholder="66 TANNERY LANE..." class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition" rows="2"></textarea>
+                <textarea id="addr" placeholder="Office Address" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition" rows="2"></textarea>
             </div>
             
             <button onclick="generateLink()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all mt-4">Generate NFC URL / 產生寫入網址</button>
@@ -74,10 +70,20 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
     <script>
+        // 初始化電話外掛
+        const phoneInput = document.querySelector("#phone");
+        const iti = window.intlTelInput(phoneInput, {
+            initialCountry: "sg", // 預設新加坡
+            preferredCountries: ["sg", "my", "tw", "cn"], // 優先顯示星馬台
+            separateDialCode: true,
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+        });
+
         const params = new URLSearchParams(window.location.search);
         const name = params.get('n');
-        const phone = params.get('p'); // 這裡會包含國碼
+        const phone = params.get('p');
         const company = params.get('c');
         const web = params.get('w');
         const addr = params.get('a');
@@ -104,19 +110,15 @@
 
         function generateLink() {
             const n = document.getElementById('name').value;
-            const code = document.getElementById('countryCode').value;
-            const p = document.getElementById('phone').value;
+            const p = iti.getNumber(); // 自動獲取包含國碼的完整號碼
             const c = document.getElementById('company').value;
             const w = document.getElementById('web').value;
             const a = document.getElementById('addr').value;
             
-            if(!n || !p) return alert('請填寫姓名與電話 / Name and Phone are required');
-            
-            // 將國碼與電話結合
-            const fullPhone = code + p.replace(/\s+/g, '');
+            if(!n || !iti.isValidNumber()) return alert('請填寫姓名與正確的電話號碼 / Name and valid Phone required');
             
             const baseUrl = window.location.href.split('?')[0];
-            const finalUrl = `${baseUrl}?n=${encodeURIComponent(n)}&p=${encodeURIComponent(fullPhone)}&c=${encodeURIComponent(c)}&w=${encodeURIComponent(w)}&a=${encodeURIComponent(a)}`;
+            const finalUrl = `${baseUrl}?n=${encodeURIComponent(n)}&p=${encodeURIComponent(p)}&c=${encodeURIComponent(c)}&w=${encodeURIComponent(w)}&a=${encodeURIComponent(a)}`;
             
             document.getElementById('outputUrl').value = finalUrl;
             document.getElementById('result').classList.remove('hidden');
@@ -126,7 +128,7 @@
             const copyText = document.getElementById("outputUrl");
             copyText.select();
             document.execCommand("copy");
-            alert("URL Copied! Now write it to NFC Tools.\n網址已拷貝！");
+            alert("URL Copied! Now write it to NFC Tools.");
         }
 
         function downloadVCard() {
