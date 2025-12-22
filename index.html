@@ -3,37 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFC 數位名片產生器</title>
+    <title>NFC Digital Business Card Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-slate-50 flex items-center justify-center min-h-screen p-4 font-sans text-slate-900">
 
-    <div id="app" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">NFC 數位名片</h1>
+    <div id="app" class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100">
+        <h1 class="text-2xl font-black text-center mb-6 tracking-tight text-slate-800">NFC Business Card <span class="text-blue-600">Pro</span></h1>
 
-        <div id="cardDisplay" class="hidden">
-            <div class="text-center">
-                <div class="w-24 h-24 bg-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold" id="initial"></div>
-                <h2 id="displayName" class="text-xl font-bold text-gray-800"></h2>
-                <p id="displayCompany" class="text-gray-500 mb-4"></p>
-                <a id="dialPhone" href="#" class="block w-full bg-blue-600 text-white py-3 rounded-lg font-semibold mb-3">撥打電話</a>
-                <button onclick="downloadVCard()" class="block w-full border-2 border-blue-600 text-blue-600 py-3 rounded-lg font-semibold">加入通訊錄</button>
+        <div id="cardDisplay" class="hidden text-center">
+            <div class="w-24 h-24 gradient-bg rounded-full mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold shadow-lg" id="initial"></div>
+            <h2 id="displayName" class="text-2xl font-bold"></h2>
+            <p id="displayCompany" class="text-slate-500 mb-6 font-medium"></p>
+            
+            <div class="space-y-3">
+                <a id="dialPhone" href="#" class="block w-full bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition">Call / 撥打電話</a>
+                <a id="openWeb" href="#" class="hidden block w-full bg-blue-50 text-blue-700 py-3 rounded-xl font-bold border border-blue-100 hover:bg-blue-100 transition">Website / 訪問網站</a>
+                <a id="openMap" href="#" target="_blank" class="hidden block w-full bg-emerald-50 text-emerald-700 py-3 rounded-xl font-bold border border-emerald-100 hover:bg-emerald-100 transition">Address / 查看地址</a>
+                <button onclick="downloadVCard()" class="block w-full bg-white border-2 border-slate-800 text-slate-800 py-3 rounded-xl font-bold hover:bg-slate-50 transition">Add to Contacts / 加入通訊錄</button>
             </div>
-            <hr class="my-6">
-            <button onclick="window.location.href=window.location.pathname" class="text-sm text-gray-400 underline">建立我的名片</button>
+            
+            <hr class="my-8">
+            <button onclick="window.location.href=window.location.pathname" class="text-sm text-slate-400 hover:text-blue-500 underline transition">Create Your Own / 建立我的名片</button>
         </div>
 
-        <div id="inputForm">
-            <div class="space-y-4">
-                <div><label class="block text-sm font-medium text-gray-700">姓名</label><input type="text" id="name" class="w-full border rounded-lg p-2 mt-1"></div>
-                <div><label class="block text-sm font-medium text-gray-700">電話</label><input type="tel" id="phone" class="w-full border rounded-lg p-2 mt-1"></div>
-                <div><label class="block text-sm font-medium text-gray-700">公司</label><input type="text" id="company" class="w-full border rounded-lg p-2 mt-1"></div>
-                <button onclick="generateLink()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold mt-4">產生 NFC 寫入網址</button>
+        <div id="inputForm" class="space-y-4">
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Name / 姓名 *</label>
+                <input type="text" id="name" placeholder="John Doe" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
-            <div id="result" class="hidden mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
-                <p class="text-sm text-green-800 font-bold mb-2">請複製下方網址寫入 NFC：</p>
-                <textarea id="outputUrl" class="w-full text-xs border p-2 rounded bg-white" rows="3" readonly></textarea>
-                <button onclick="copyUrl()" class="text-sm text-blue-600 mt-2 underline">點我拷貝網址</button>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone / 電話 *</label>
+                <input type="tel" id="phone" placeholder="+886 912..." class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Company / 公司</label>
+                <input type="text" id="company" placeholder="Company Name" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Website / 網站 (選填)</label>
+                <input type="url" id="web" placeholder="https://..." class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Address / 地址 (選填)</label>
+                <textarea id="addr" placeholder="Office Address" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition" rows="2"></textarea>
+            </div>
+            
+            <button onclick="generateLink()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all mt-4">Generate NFC URL / 產生寫入網址</button>
+
+            <div id="result" class="hidden mt-6 p-5 bg-slate-900 rounded-2xl text-white">
+                <p class="text-xs font-bold text-slate-400 mb-2 uppercase">Copy URL to NFC Tools / 拷貝網址：</p>
+                <textarea id="outputUrl" class="w-full text-xs border-none p-3 rounded-lg bg-slate-800 text-blue-300 focus:ring-0" rows="3" readonly></textarea>
+                <button onclick="copyUrl()" class="w-full bg-blue-500 text-white py-2 rounded-lg mt-3 font-bold text-sm">Click to Copy / 點擊拷貝</button>
             </div>
         </div>
     </div>
@@ -43,6 +67,8 @@
         const name = params.get('n');
         const phone = params.get('p');
         const company = params.get('c');
+        const web = params.get('w');
+        const addr = params.get('a');
 
         if (name && phone) {
             document.getElementById('inputForm').classList.add('hidden');
@@ -51,16 +77,30 @@
             document.getElementById('displayCompany').innerText = company || '';
             document.getElementById('initial').innerText = name.charAt(0);
             document.getElementById('dialPhone').href = `tel:${phone}`;
+            
+            if(web) {
+                const wBtn = document.getElementById('openWeb');
+                wBtn.classList.remove('hidden');
+                wBtn.href = web.startsWith('http') ? web : `https://${web}`;
+            }
+            if(addr) {
+                const aBtn = document.getElementById('openMap');
+                aBtn.classList.remove('hidden');
+                aBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
+            }
         }
 
         function generateLink() {
             const n = document.getElementById('name').value;
             const p = document.getElementById('phone').value;
             const c = document.getElementById('company').value;
-            if(!n || !p) return alert('請填寫姓名與電話');
+            const w = document.getElementById('web').value;
+            const a = document.getElementById('addr').value;
+            
+            if(!n || !p) return alert('請填寫姓名與電話 / Name and Phone are required');
             
             const baseUrl = window.location.href.split('?')[0];
-            const finalUrl = `${baseUrl}?n=${encodeURIComponent(n)}&p=${encodeURIComponent(p)}&c=${encodeURIComponent(c)}`;
+            const finalUrl = `${baseUrl}?n=${encodeURIComponent(n)}&p=${encodeURIComponent(p)}&c=${encodeURIComponent(c)}&w=${encodeURIComponent(w)}&a=${encodeURIComponent(a)}`;
             
             document.getElementById('outputUrl').value = finalUrl;
             document.getElementById('result').classList.remove('hidden');
@@ -70,11 +110,11 @@
             const copyText = document.getElementById("outputUrl");
             copyText.select();
             document.execCommand("copy");
-            alert("網址已拷貝！現在去 NFC Tools 寫入吧。");
+            alert("URL Copied! Now write it to NFC Tools.\n網址已拷貝！");
         }
 
         function downloadVCard() {
-            const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nORG:${company}\nTEL:${phone}\nEND:VCARD`;
+            const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nORG:${company}\nTEL:${phone}\nURL:${web}\nADR:;;${addr}\nEND:VCARD`;
             const blob = new Blob([vcard], { type: 'text/vcard' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
