@@ -49,14 +49,23 @@
                     <datalist id="countryCodes">
                         <option value="+65">Singapore (SG)</option>
                         <option value="+60">Malaysia (MY)</option>
+                        <option value="+91">India (IN)</option>
                         <option value="+886">Taiwan (TW)</option>
                         <option value="+86">China (CN)</option>
                         <option value="+852">Hong Kong (HK)</option>
+                        <option value="+84">Vietnam (VN)</option>
+                        <option value="+66">Thailand (TH)</option>
+                        <option value="+62">Indonesia (ID)</option>
+                        <option value="+63">Philippines (PH)</option>
                         <option value="+1">USA (US)</option>
+                        <option value="+44">UK (UK)</option>
+                        <option value="+81">Japan (JP)</option>
+                        <option value="+82">Korea (KR)</option>
+                        <option value="+61">Australia (AU)</option>
                     </datalist>
                     <input type="tel" id="phone" placeholder="88888888" class="w-full border-slate-200 border-2 rounded-r-xl p-3 focus:border-blue-500 outline-none transition">
                 </div>
-                <p class="text-[10px] text-slate-400 mt-1">輸入數字會自動匹配國碼 (如: 60)</p>
+                <p class="text-[10px] text-slate-400 mt-1">輸入數字如 91 會自動匹配 (例如 India)</p>
             </div>
 
             <div>
@@ -64,29 +73,29 @@
                 <input type="text" id="company" placeholder="Company Name" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
             <div>
-                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Website / 網站 (選填)</label>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Website / 網站</label>
                 <input type="url" id="web" placeholder="https://..." class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
             <div>
-                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Address / 地址 (選填)</label>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Address / 地址</label>
                 <textarea id="addr" placeholder="Office Address" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition" rows="2"></textarea>
             </div>
             
-            <button onclick="generateLink()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all mt-4 text-center">Generate NFC URL / 產生網址</button>
+            <button onclick="generateLink()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl mt-4">Generate NFC URL / 產生網址</button>
 
             <div id="result" class="hidden mt-6 p-5 bg-slate-900 rounded-2xl text-white text-center">
-                <p class="text-xs font-bold text-slate-400 mb-2 uppercase">Copy URL to NFC Tools / 拷貝網址：</p>
+                <p class="text-xs font-bold text-slate-400 mb-2 uppercase">Copy URL to NFC Tools：</p>
                 <textarea id="outputUrl" class="w-full text-xs border-none p-3 rounded-lg bg-slate-800 text-blue-300 focus:ring-0" rows="3" readonly></textarea>
-                <button onclick="copyUrl()" class="w-full bg-blue-500 text-white py-2 rounded-lg mt-3 font-bold text-sm">Click to Copy / 點擊拷貝網址</button>
+                <button onclick="copyUrl()" class="w-full bg-blue-500 text-white py-2 rounded-lg mt-3 font-bold text-sm">Click to Copy / 點擊拷貝</button>
             </div>
         </div>
     </div>
 
     <script>
-        // 智慧國碼轉換：輸入 60 自動變 +60
         function smartCode(input) {
             let val = input.value.trim();
-            if (val.length >= 2 && !val.startsWith('+')) {
+            // 只要開始輸入數字，就自動加上 + 號方便搜尋
+            if (val.length >= 1 && !val.startsWith('+') && !isNaN(val.charAt(0))) {
                 input.value = '+' + val;
             }
         }
@@ -107,43 +116,30 @@
             document.getElementById('displayCompany').innerText = company || '';
             document.getElementById('initial').innerText = name.charAt(0);
             document.getElementById('dialPhone').href = `tel:${phone}`;
-            
-            if(web) {
-                const wBtn = document.getElementById('openWeb');
-                wBtn.classList.remove('hidden');
-                wBtn.href = web.startsWith('http') ? web : `https://${web}`;
-            }
-            if(addr) {
-                const aBtn = document.getElementById('openMap');
-                aBtn.classList.remove('hidden');
-                aBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
-            }
+            if(web) { document.getElementById('openWeb').classList.remove('hidden'); document.getElementById('openWeb').href = web.startsWith('http') ? web : `https://${web}`; }
+            if(addr) { document.getElementById('openMap').classList.remove('hidden'); document.getElementById('openMap').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`; }
         }
 
         function generateLink() {
             const n = document.getElementById('name').value;
-            const posVal = document.getElementById('position').value;
-            const code = document.getElementById('countryCode').value || '+65';
-            const p = document.getElementById('phone').value;
-            const c = document.getElementById('company').value;
-            const w = document.getElementById('web').value;
-            const a = document.getElementById('addr').value;
+            const pVal = document.getElementById('phone').value;
+            if(!n || !pVal) return alert('請填寫姓名與電話');
             
-            if(!n || !p) return alert('請填寫姓名與電話 / Name and Phone are required');
+            let code = document.getElementById('countryCode').value || '+65';
+            if (!code.startsWith('+')) code = '+' + code;
             
-            const fullPhone = (code.startsWith('+') ? '' : '+') + code + p.replace(/\s+/g, '');
+            const fullPhone = code + pVal.replace(/\s+/g, '');
             const baseUrl = window.location.href.split('?')[0];
-            const finalUrl = `${baseUrl}?n=${encodeURIComponent(n)}&pos=${encodeURIComponent(posVal)}&p=${encodeURIComponent(fullPhone)}&c=${encodeURIComponent(c)}&w=${encodeURIComponent(w)}&a=${encodeURIComponent(a)}`;
+            const finalUrl = `${baseUrl}?n=${encodeURIComponent(n)}&pos=${encodeURIComponent(document.getElementById('position').value)}&p=${encodeURIComponent(fullPhone)}&c=${encodeURIComponent(document.getElementById('company').value)}&w=${encodeURIComponent(document.getElementById('web').value)}&a=${encodeURIComponent(document.getElementById('addr').value)}`;
             
             document.getElementById('outputUrl').value = finalUrl;
             document.getElementById('result').classList.remove('hidden');
         }
 
         function copyUrl() {
-            const copyText = document.getElementById("outputUrl");
-            copyText.select();
+            document.getElementById("outputUrl").select();
             document.execCommand("copy");
-            alert("URL Copied! 網址已拷貝！");
+            alert("URL Copied!");
         }
 
         function downloadVCard() {
