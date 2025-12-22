@@ -24,7 +24,6 @@
                 <a id="sendEmail" href="#" class="hidden block w-full bg-slate-100 text-slate-700 py-3 rounded-xl font-bold border border-slate-200 hover:bg-slate-200 transition">Email / 發送郵件</a>
                 <a id="openWeb" href="#" class="hidden block w-full bg-blue-50 text-blue-700 py-3 rounded-xl font-bold border border-blue-100 hover:bg-blue-100 transition">Website / 訪問網站</a>
                 <a id="openMap" href="#" target="_blank" class="hidden block w-full bg-emerald-50 text-emerald-700 py-3 rounded-xl font-bold border border-emerald-100 hover:bg-emerald-100 transition">Address / 查看地址</a>
-                
                 <button onclick="downloadVCard()" class="block w-full bg-blue-600 text-white border-2 border-blue-600 py-3 rounded-xl font-bold hover:bg-blue-500 transition shadow-sm">Save Contact / 儲存名片</button>
             </div>
             
@@ -35,13 +34,13 @@
         <div id="inputForm" class="space-y-4">
             
             <div>
-                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name / 姓名 (例如: KY Young) *</label>
-                <input type="text" id="name" placeholder="KY Young" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name / 姓名 (例如: John Doe) *</label>
+                <input type="text" id="name" placeholder="John Doe" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
 
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Position / 職位</label>
-                <input type="text" id="position" placeholder="Manager" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <input type="text" id="position" placeholder="Job Title" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
             
             <div>
@@ -64,12 +63,12 @@
 
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Email / 電子郵件 (選填)</label>
-                <input type="email" id="email" placeholder="ky@example.com" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <input type="email" id="email" placeholder="example@gmail.com" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
 
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Company / 公司</label>
-                <input type="text" id="company" placeholder="Global Asia Printing" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <input type="text" id="company" placeholder="Example Company" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Website / 網站</label>
@@ -102,7 +101,7 @@
         const urlN = params.get('n');
         const urlP = params.get('pos');
         const urlPh = params.get('p');
-        const urlE = params.get('e'); // Email
+        const urlE = params.get('e');
         const urlC = params.get('c');
         const urlW = params.get('w');
         const urlA = params.get('a');
@@ -112,14 +111,12 @@
             document.getElementById('cardDisplay').classList.remove('hidden');
             document.getElementById('displayName').innerText = urlN;
             
-            // 這裡保留你需要的「頭像顯示名字」邏輯
             const displayFullTitle = urlC ? `${urlP} | ${urlC}` : urlP;
             document.getElementById('displayPosition').innerText = displayFullTitle;
             
             document.getElementById('initial').innerText = urlN.charAt(0);
             document.getElementById('dialPhone').href = `tel:${urlPh}`;
 
-            // Email 按鈕顯示邏輯
             if(urlE) {
                 const eBtn = document.getElementById('sendEmail');
                 eBtn.classList.remove('hidden');
@@ -140,7 +137,6 @@
             const fullPhone = code + pVal.replace(/\s+/g, '');
 
             const baseUrl = window.location.href.split('?')[0];
-            // 產生網址包含 Email
             const finalUrl = `${baseUrl}?n=${encodeURIComponent(nVal)}&pos=${encodeURIComponent(document.getElementById('position').value)}&p=${encodeURIComponent(fullPhone)}&e=${encodeURIComponent(document.getElementById('email').value)}&c=${encodeURIComponent(document.getElementById('company').value)}&w=${encodeURIComponent(document.getElementById('web').value)}&a=${encodeURIComponent(document.getElementById('addr').value)}`;
             
             document.getElementById('outputUrl').value = finalUrl;
@@ -165,7 +161,6 @@
                 firstName = urlN;
             }
 
-            // 這裡保留「移花接木」大法，確保頭像是 K
             const combinedTitle = urlC ? `${urlP} | ${urlC}` : urlP;
 
             const vcardParts = [
@@ -177,7 +172,7 @@
                 `TITLE:${combinedTitle}`,
                 `ORG:`, 
                 `TEL;TYPE=CELL,VOICE:${urlPh}`,
-                `EMAIL;TYPE=WORK:${urlE}`, // 這裡寫入 Email
+                `EMAIL;TYPE=WORK:${urlE}`,
                 `URL;TYPE=WORK:${urlW}`,
                 `ADR;TYPE=WORK:;;${urlA};;;;`,
                 'END:VCARD'
