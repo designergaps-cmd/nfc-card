@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NFC Digital Business Card Generator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"/>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        /* 修正外掛樣式使其適應 Tailwind */
-        .iti { width: 100%; }
-        .iti__country-list { color: #333; max-width: 300px; }
     </style>
 </head>
 <body class="bg-slate-50 flex items-center justify-center min-h-screen p-4 font-sans text-slate-900">
@@ -21,12 +17,13 @@
         <div id="cardDisplay" class="hidden text-center">
             <div class="w-24 h-24 gradient-bg rounded-full mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold shadow-lg" id="initial"></div>
             <h2 id="displayName" class="text-2xl font-bold"></h2>
+            <p id="displayPosition" class="text-blue-600 font-bold text-sm uppercase tracking-wider"></p>
             <p id="displayCompany" class="text-slate-500 mb-6 font-medium"></p>
             
             <div class="space-y-3">
                 <a id="dialPhone" href="#" class="block w-full bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition">Call / 撥打電話</a>
-                <a id="openWeb" href="#" class="hidden block w-full bg-blue-50 text-blue-700 py-3 rounded-xl font-bold border border-blue-100 hover:bg-blue-100 transition">Website / 訪問網站</a>
-                <a id="openMap" href="#" target="_blank" class="hidden block w-full bg-emerald-50 text-emerald-700 py-3 rounded-xl font-bold border border-emerald-100 hover:bg-emerald-100 transition">Address / 查看地址</a>
+                <a id="openWeb" href="#" class="hidden block w-full bg-blue-50 text-blue-700 py-3 rounded-xl font-bold border border-blue-100">Website / 訪問網站</a>
+                <a id="openMap" href="#" target="_blank" class="hidden block w-full bg-emerald-50 text-emerald-700 py-3 rounded-xl font-bold border border-emerald-100">Address / 查看地址</a>
                 <button onclick="downloadVCard()" class="block w-full bg-white border-2 border-slate-800 text-slate-800 py-3 rounded-xl font-bold hover:bg-slate-50 transition">Add to Contacts / 加入通訊錄</button>
             </div>
             
@@ -37,19 +34,34 @@
         <div id="inputForm" class="space-y-4">
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Name / 姓名 *</label>
-                <input type="text" id="name" placeholder="John Doe" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <input type="text" id="name" placeholder="John Doe" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none">
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Position / 職位</label>
+                <input type="text" id="position" placeholder="Manager / 經理" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
             
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone / 電話 *</label>
-                <div class="mt-1">
-                    <input type="tel" id="phone" class="w-full border-slate-200 border-2 rounded-xl p-3 focus:border-blue-500 outline-none transition">
+                <div class="flex mt-1">
+                    <input list="countryCodes" id="countryCode" placeholder="+65" class="w-28 border-slate-200 border-2 border-r-0 rounded-l-xl p-3 bg-slate-50 text-sm outline-none focus:border-blue-500" oninput="smartCode(this)">
+                    <datalist id="countryCodes">
+                        <option value="+65">Singapore (SG)</option>
+                        <option value="+60">Malaysia (MY)</option>
+                        <option value="+886">Taiwan (TW)</option>
+                        <option value="+86">China (CN)</option>
+                        <option value="+852">Hong Kong (HK)</option>
+                        <option value="+1">USA (US)</option>
+                    </datalist>
+                    <input type="tel" id="phone" placeholder="88888888" class="w-full border-slate-200 border-2 rounded-r-xl p-3 focus:border-blue-500 outline-none transition">
                 </div>
+                <p class="text-[10px] text-slate-400 mt-1">輸入數字會自動匹配國碼 (如: 60)</p>
             </div>
 
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Company / 公司</label>
-                <input type="text" id="company" placeholder="Unicorn KY" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
+                <input type="text" id="company" placeholder="Company Name" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
             <div>
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Website / 網站 (選填)</label>
@@ -60,29 +72,28 @@
                 <textarea id="addr" placeholder="Office Address" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition" rows="2"></textarea>
             </div>
             
-            <button onclick="generateLink()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all mt-4">Generate NFC URL / 產生寫入網址</button>
+            <button onclick="generateLink()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all mt-4 text-center">Generate NFC URL / 產生網址</button>
 
-            <div id="result" class="hidden mt-6 p-5 bg-slate-900 rounded-2xl text-white">
+            <div id="result" class="hidden mt-6 p-5 bg-slate-900 rounded-2xl text-white text-center">
                 <p class="text-xs font-bold text-slate-400 mb-2 uppercase">Copy URL to NFC Tools / 拷貝網址：</p>
                 <textarea id="outputUrl" class="w-full text-xs border-none p-3 rounded-lg bg-slate-800 text-blue-300 focus:ring-0" rows="3" readonly></textarea>
-                <button onclick="copyUrl()" class="w-full bg-blue-500 text-white py-2 rounded-lg mt-3 font-bold text-sm">Click to Copy / 點擊拷貝</button>
+                <button onclick="copyUrl()" class="w-full bg-blue-500 text-white py-2 rounded-lg mt-3 font-bold text-sm">Click to Copy / 點擊拷貝網址</button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
     <script>
-        // 初始化電話外掛
-        const phoneInput = document.querySelector("#phone");
-        const iti = window.intlTelInput(phoneInput, {
-            initialCountry: "sg", // 預設新加坡
-            preferredCountries: ["sg", "my", "tw", "cn"], // 優先顯示星馬台
-            separateDialCode: true,
-            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
-        });
+        // 智慧國碼轉換：輸入 60 自動變 +60
+        function smartCode(input) {
+            let val = input.value.trim();
+            if (val.length >= 2 && !val.startsWith('+')) {
+                input.value = '+' + val;
+            }
+        }
 
         const params = new URLSearchParams(window.location.search);
         const name = params.get('n');
+        const pos = params.get('pos');
         const phone = params.get('p');
         const company = params.get('c');
         const web = params.get('w');
@@ -92,6 +103,7 @@
             document.getElementById('inputForm').classList.add('hidden');
             document.getElementById('cardDisplay').classList.remove('hidden');
             document.getElementById('displayName').innerText = name;
+            document.getElementById('displayPosition').innerText = pos || '';
             document.getElementById('displayCompany').innerText = company || '';
             document.getElementById('initial').innerText = name.charAt(0);
             document.getElementById('dialPhone').href = `tel:${phone}`;
@@ -110,15 +122,18 @@
 
         function generateLink() {
             const n = document.getElementById('name').value;
-            const p = iti.getNumber(); // 自動獲取包含國碼的完整號碼
+            const posVal = document.getElementById('position').value;
+            const code = document.getElementById('countryCode').value || '+65';
+            const p = document.getElementById('phone').value;
             const c = document.getElementById('company').value;
             const w = document.getElementById('web').value;
             const a = document.getElementById('addr').value;
             
-            if(!n || !iti.isValidNumber()) return alert('請填寫姓名與正確的電話號碼 / Name and valid Phone required');
+            if(!n || !p) return alert('請填寫姓名與電話 / Name and Phone are required');
             
+            const fullPhone = (code.startsWith('+') ? '' : '+') + code + p.replace(/\s+/g, '');
             const baseUrl = window.location.href.split('?')[0];
-            const finalUrl = `${baseUrl}?n=${encodeURIComponent(n)}&p=${encodeURIComponent(p)}&c=${encodeURIComponent(c)}&w=${encodeURIComponent(w)}&a=${encodeURIComponent(a)}`;
+            const finalUrl = `${baseUrl}?n=${encodeURIComponent(n)}&pos=${encodeURIComponent(posVal)}&p=${encodeURIComponent(fullPhone)}&c=${encodeURIComponent(c)}&w=${encodeURIComponent(w)}&a=${encodeURIComponent(a)}`;
             
             document.getElementById('outputUrl').value = finalUrl;
             document.getElementById('result').classList.remove('hidden');
@@ -128,11 +143,11 @@
             const copyText = document.getElementById("outputUrl");
             copyText.select();
             document.execCommand("copy");
-            alert("URL Copied! Now write it to NFC Tools.");
+            alert("URL Copied! 網址已拷貝！");
         }
 
         function downloadVCard() {
-            const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nORG:${company}\nTEL:${phone}\nURL:${web}\nADR:;;${addr}\nEND:VCARD`;
+            const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTITLE:${pos}\nORG:${company}\nTEL:${phone}\nURL:${web}\nADR:;;${addr}\nEND:VCARD`;
             const blob = new Blob([vcard], { type: 'text/vcard' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
