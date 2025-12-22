@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFC 數位名片產生器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">NFC 數位名片</h1>
+
+        <div id="cardDisplay" class="hidden">
+            <div class="text-center">
+                <div class="w-24 h-24 bg-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold" id="initial"></div>
+                <h2 id="displayName" class="text-xl font-bold text-gray-800"></h2>
+                <p id="displayCompany" class="text-gray-500 mb-4"></p>
+                <a id="dialPhone" href="#" class="block w-full bg-blue-600 text-white py-3 rounded-lg font-semibold mb-3">撥打電話</a>
+                <button onclick="downloadVCard()" class="block w-full border-2 border-blue-600 text-blue-600 py-3 rounded-lg font-semibold">加入通訊錄</button>
+            </div>
+            <hr class="my-6">
+            <button onclick="window.location.href=window.location.pathname" class="text-sm text-gray-400 underline">建立我的名片</button>
+        </div>
+
+        <div id="inputForm">
+            <div class="space-y-4">
+                <div><label class="block text-sm font-medium text-gray-700">姓名</label><input type="text" id="name" class="w-full border rounded-lg p-2 mt-1"></div>
+                <div><label class="block text-sm font-medium text-gray-700">電話</label><input type="tel" id="phone" class="w-full border rounded-lg p-2 mt-1"></div>
+                <div><label class="block text-sm font-medium text-gray-700">公司</label><input type="text" id="company" class="w-full border rounded-lg p-2 mt-1"></div>
+                <button onclick="generateLink()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold mt-4">產生 NFC 寫入網址</button>
+            </div>
+            <div id="result" class="hidden mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                <p class="text-sm text-green-800 font-bold mb-2">請複製下方網址寫入 NFC：</p>
+                <textarea id="outputUrl" class="w-full text-xs border p-2 rounded bg-white" rows="3" readonly></textarea>
+                <button onclick="copyUrl()" class="text-sm text-blue-600 mt-2 underline">點我拷貝網址</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const name = params.get('n');
+        const phone = params.get('p');
+        const company = params.get('c');
+
+        if (name && phone) {
+            document.getElementById('inputForm').classList.add('hidden');
+            document.getElementById('cardDisplay').classList.remove('hidden');
+            document.getElementById('displayName').innerText = name;
+            document.getElementById('displayCompany').innerText = company || '';
+            document.getElementById('initial').innerText = name.charAt(0);
+            document.getElementById('dialPhone').href = `tel:${phone}`;
+        }
+
+        function generateLink() {
+            const n = document.getElementById('name').value;
+            const p = document.getElementById('phone').value;
+            const c = document.getElementById('company').value;
+            if(!n || !p) return alert('請填寫姓名與電話');
+            
+            const baseUrl = window.location.href.split('?')[0];
+            const finalUrl = `${baseUrl}?n=${encodeURIComponent(n)}&p=${encodeURIComponent(p)}&c=${encodeURIComponent(c)}`;
+            
+            document.getElementById('outputUrl').value = finalUrl;
+            document.getElementById('result').classList.remove('hidden');
+        }
+
+        function copyUrl() {
+            const copyText = document.getElementById("outputUrl");
+            copyText.select();
+            document.execCommand("copy");
+            alert("網址已拷貝！現在去 NFC Tools 寫入吧。");
+        }
+
+        function downloadVCard() {
+            const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nORG:${company}\nTEL:${phone}\nEND:VCARD`;
+            const blob = new Blob([vcard], { type: 'text/vcard' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${name}.vcf`;
+            a.click();
+        }
+    </script>
+</body>
+</html>
