@@ -49,7 +49,11 @@
                     <datalist id="countryCodes">
                         <option value="+65">Singapore (SG)</option>
                         <option value="+60">Malaysia (MY)</option>
+                        <option value="+91">India (IN)</option>
                         <option value="+886">Taiwan (TW)</option>
+                        <option value="+86">China (CN)</option>
+                        <option value="+852">Hong Kong (HK)</option>
+                        <option value="+84">Vietnam (VN)</option>
                         <option value="+1">USA (US)</option>
                     </datalist>
                     <input type="tel" id="phone" placeholder="88888888" class="w-full border-slate-200 border-2 rounded-r-xl p-3 focus:border-blue-500 outline-none transition">
@@ -130,14 +134,26 @@
         }
 
         function downloadVCard() {
-            // 終極修正：為了讓頭像正確顯示名字首字母，我們需要微調 N 標籤
-            // N 標籤格式是：姓;名;中間名;前綴;後綴
+            // 自動分割姓名以修復頭像顯示問題
+            // 邏輯：最後一個空格後面的是「姓」，前面全部是「名」
+            const nameParts = urlN.trim().split(' ');
+            let firstName = '';
+            let lastName = '';
+            
+            if (nameParts.length > 1) {
+                lastName = nameParts.pop(); // 拿出最後一個字當姓 (e.g. Young)
+                firstName = nameParts.join(' '); // 剩下的當名 (e.g. KY)
+            } else {
+                firstName = urlN; // 如果只有一個字，就全是名
+            }
+
             const vcard = [
                 'BEGIN:VCARD',
                 'VERSION:3.0',
-                `N:;${urlN};;;`,  // 將全名放在「名字」位置，姓氏留空，這會強制頭像抓取名字
+                `N:${lastName};${firstName};;;`, // 這裡告訴 iPhone 哪個是姓，哪個是名 -> 頭像修復關鍵！
                 `FN:${urlN}`,
-                `TITLE:${urlP} | ${urlC}`, // 公司併入職稱
+                `ORG:${urlC}`,   // 公司放回 ORG
+                `TITLE:${urlP}`, // 職位放回 TITLE
                 `TEL;TYPE=CELL,VOICE:${urlPh}`,
                 `URL;TYPE=WORK:${urlW}`,
                 `ADR;TYPE=WORK:;;${urlA};;;;`,
