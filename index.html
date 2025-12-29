@@ -34,7 +34,7 @@
         <div id="inputForm" class="space-y-4">
             
             <div>
-                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name / 姓名 (例如: John Doe) *</label>
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name / 姓名 *</label>
                 <input type="text" id="name" placeholder="John Doe" class="w-full border-slate-200 border-2 rounded-xl p-3 mt-1 focus:border-blue-500 outline-none transition">
             </div>
 
@@ -111,20 +111,27 @@
             document.getElementById('cardDisplay').classList.remove('hidden');
             document.getElementById('displayName').innerText = urlN;
             
+            // 頁面展示依然保留 | 分隔符，方便查看
             const displayFullTitle = urlC ? `${urlP} | ${urlC}` : urlP;
             document.getElementById('displayPosition').innerText = displayFullTitle;
             
             document.getElementById('initial').innerText = urlN.charAt(0);
             document.getElementById('dialPhone').href = `tel:${urlPh}`;
 
-            if(urlE) {
+            if(urlE && urlE !== 'null') {
                 const eBtn = document.getElementById('sendEmail');
                 eBtn.classList.remove('hidden');
                 eBtn.href = `mailto:${urlE}`;
             }
 
-            if(urlW) { document.getElementById('openWeb').classList.remove('hidden'); document.getElementById('openWeb').href = urlW.startsWith('http') ? urlW : `https://${urlW}`; }
-            if(urlA) { document.getElementById('openMap').classList.remove('hidden'); document.getElementById('openMap').href = `google.com/maps/search/` + encodeURIComponent(urlA); }
+            if(urlW && urlW !== 'null') { 
+                document.getElementById('openWeb').classList.remove('hidden'); 
+                document.getElementById('openWeb').href = urlW.startsWith('http') ? urlW : `https://${urlW}`; 
+            }
+            if(urlA && urlA !== 'null') { 
+                document.getElementById('openMap').classList.remove('hidden'); 
+                document.getElementById('openMap').href = `https://www.google.com/maps/search/?api=1&query=` + encodeURIComponent(urlA); 
+            }
         }
 
         function generateLink() {
@@ -150,7 +157,7 @@
         }
 
         function downloadVCard() {
-            const nameParts = urlN.trim().split(/\s+/);
+            const nameParts = (urlN || "").trim().split(/\s+/);
             let firstName = '';
             let lastName = '';
             
@@ -161,20 +168,18 @@
                 firstName = urlN;
             }
 
-            const combinedTitle = urlC ? `${urlP} | ${urlC}` : urlP;
-
+            // 核心修复点：将 TITLE 和 ORG 分开存放
             const vcardParts = [
                 'BEGIN:VCARD',
                 'VERSION:3.0',
                 `N:${lastName};${firstName};;;`,
                 `FN:${urlN}`,
-                `X-ABShowAs:PERSON`, 
-                `TITLE:${combinedTitle}`,
-                `ORG:`, 
+                `ORG:${urlC || ''}`,     // 公司名单独存放
+                `TITLE:${urlP || ''}`,   // 职位名单独存放
                 `TEL;TYPE=CELL,VOICE:${urlPh}`,
-                `EMAIL;TYPE=WORK:${urlE}`,
-                `URL;TYPE=WORK:${urlW}`,
-                `ADR;TYPE=WORK:;;${urlA};;;;`,
+                `EMAIL;TYPE=WORK:${urlE || ''}`,
+                `URL;TYPE=WORK:${urlW || ''}`,
+                `ADR;TYPE=WORK:;;${urlA || ''};;;;`,
                 'END:VCARD'
             ];
             
